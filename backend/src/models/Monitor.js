@@ -29,6 +29,12 @@ const monitorSchema = new Schema({
         type: Boolean,
         required: false,
         default: true
+    },
+    lastCheckedAt: {
+        type: Date
+    },
+    nextCheckAt: {
+        type: Date
     }
 },
     { timestamps: true })

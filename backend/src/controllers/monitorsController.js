@@ -98,7 +98,14 @@ const getMonitorResults = async (req, res) => {
         // CheckResult.find({ monitor: id }) ==>  monitor alani bu id olani getirme islemi
         const results = await CheckResult.find({ monitor: id }).sort({ checkedAt: -1 }).skip(skip).limit(limit)
 
-        return res.json(results)
+        return res.json({
+            monitorId: id,
+            skip,
+            limit,
+            count: results.length,
+            results
+
+        })
 
     } catch (error) {
 
@@ -114,6 +121,52 @@ const getMonitorResults = async (req, res) => {
 }
 
 
+const getLastResult = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        const monitor = await Monitor.findById(id)
+        if (!monitor) {
+
+            return res.status(404).json({ message: "Monitor Bulunamadi" })
+
+        }
+
+        last = await CheckResult.findOne({ monitor: id }).sort({ checkedAt: -1 })   // en son ki 1 kaydi istedigimiz icin findOne kullandik
+
+
+        return res.json({
+
+            monitor: {
+                id: monitor._id,
+                name: monitor.name,
+                url: monitor.url,
+                enabled: monitor.enabled
+            },
+
+            lastResult: last            // hiç sonuç yoksa null döner
+
+        })
+
+
+
+
+    } catch (error) {
+
+        return res.status(500).json({
+            message: "Son sonuç alınamadı",
+            error: error.message,
+        });
+
+    }
+
+}
+
+
+
+
 
 
 
@@ -121,5 +174,6 @@ module.exports = {
     getMonitors,
     createMonitor,
     checkNow,
-    getMonitorResults
+    getMonitorResults,
+    getLastResult
 }
