@@ -86,10 +86,40 @@ const checkNow = async (req, res) => {
 }
 
 
+const getMonitorResults = async (req, res) => {
+
+    try {
+
+        const { id } = req.params
+
+        const limit = Number(req.query.limit) || 20;
+        const skip = Number(req.query.skip) || 0;
+
+        // CheckResult.find({ monitor: id }) ==>  monitor alani bu id olani getirme islemi
+        const results = await CheckResult.find({ monitor: id }).sort({ checkedAt: -1 }).skip(skip).limit(limit)
+
+        return res.json(results)
+
+    } catch (error) {
+
+        return res.status(500).json({
+            message: "Sonuclar Alinmadi",
+            error: error.message
+
+        })
+    }
+
+
+
+}
+
+
+
 
 
 module.exports = {
     getMonitors,
     createMonitor,
-    checkNow
+    checkNow,
+    getMonitorResults
 }
