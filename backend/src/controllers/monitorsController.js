@@ -198,17 +198,29 @@ const getMonitorStats = async (req, res) => {
         let latencyCount = 0;
 
 
+        let minLatencyMs = 0;
+        let maxLatencyMs = 0;
+
+
+        const statusCodeCounts = {}
+
+
         for (const result of results) {
 
+            // ok / fail sayımı
             if (result.ok) {
 
                 okCount += 1
-
             } else {
 
                 failCount += 1
             }
 
+            const key = result.status === null ? "null" : String(result.status);
+            statusCodeCounts[key] = (statusCodeCounts[key] || 0) + 1;     // obje icinde key yoksa undefided yani false doner ve yeni deger atar !!
+
+
+            // latency metrikleri
             if (typeof result.latencyMs === "number") {
 
                 latencySum += result.latencyMs;
@@ -216,8 +228,21 @@ const getMonitorStats = async (req, res) => {
 
             }
 
+            if (minLatencyMs === null || result.latencyMs < minLatencyMs) {
+
+                minLatencyMs = result.latencyMs;
+
+            }
+
+            if (maxLatencyMs === null || result.latencyMs > maxLatencyMs) {
+
+                maxLatencyMs = result.latencyMs;
+            }
+
         }
 
+
+        // latency ortalamasını güvenli şekilde hesaplama
         const avgLatencyMs = latencyCount > 0 ? Math.round(latencySum / latencyCount) : null;
 
 
@@ -238,7 +263,10 @@ const getMonitorStats = async (req, res) => {
             uptimePct,
             latencySum,
             latencyCount,
-            avgLatencyMs
+            avgLatencyMs,
+            minLatencyMs,
+            maxLatencyMs,
+            statusCodeCounts
 
         });
 
