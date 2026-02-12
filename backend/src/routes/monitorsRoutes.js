@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { getMonitors, createMonitor, checkNow, getMonitorResults, getLastResult } = require('../controllers/monitorsController')
+const { getMonitors, createMonitor, checkNow, getMonitorResults, getLastResult, getMonitorStats } = require('../controllers/monitorsController')
 
 
 router.get("/", getMonitors)
@@ -14,8 +14,6 @@ router.get("/:id/results", getMonitorResults)
 
 router.get("/:id/last-result", getLastResult)
 
-router.get("/:id/stats", (req, res) => {
-
-})
+router.get("/:id/stats", getMonitorStats)
 
 module.exports = router

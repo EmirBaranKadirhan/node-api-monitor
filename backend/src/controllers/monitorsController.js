@@ -166,6 +166,88 @@ const getLastResult = async (req, res) => {
 
 
 
+const getMonitorStats = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        const monitor = await Monitor.findById(id)
+
+        if (!monitor) {
+
+            return res.status(404).json({ message: "Monitor Bulunamadi" })
+
+        }
+
+        const minutes = Number(req.query.minutes) || 60                 // tarayicidan girilen dakika degeri
+        const fromDate = new Date(Date.now() - minutes * 60 * 1000)
+
+        const results = await CheckResult.find({
+
+            monitor: id,
+            checkedAt: { $gte: fromDate }   // $gte ==> mongoDb' de ">=" anlamina gelir. Yani checkedAt >= fromDate  sarti saglayanlari getir
+
+        }).sort({ checkedAt: -1 })
+
+        let okCount = 0;
+        let failCount = 0;
+
+
+        let latencySum = 0;
+        let latencyCount = 0;
+
+
+        for (const result of results) {
+
+            if (result.ok) {
+
+                okCount += 1
+
+            } else {
+
+                failCount += 1
+            }
+
+            if (typeof result.latencyMs === "number") {
+
+                latencySum += result.latencyMs;
+                latencyCount += 1;
+
+            }
+
+        }
+
+        const avgLatencyMs = latencyCount > 0 ? Math.round(latencySum / latencyCount) : null;
+
+
+        // Uptime yüzdesi (uptimePct)
+        const total = results.length;
+        const uptimePct = total > 0 ? Number(((okCount / total) * 100).toFixed(2)) : 0;     // yuzde hesaplama kismi 
+
+
+
+
+        return res.json({
+            monitorId: id,
+            windowMinutes: minutes,
+            from: fromDate,
+            total: results.length,
+            okCount,
+            failCount,
+            uptimePct,
+            latencySum,
+            latencyCount,
+            avgLatencyMs
+
+        });
+
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+
+
+}
 
 
 
@@ -175,5 +257,6 @@ module.exports = {
     createMonitor,
     checkNow,
     getMonitorResults,
-    getLastResult
+    getLastResult,
+    getMonitorStats
 }
