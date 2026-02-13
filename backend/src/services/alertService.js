@@ -5,9 +5,9 @@ const Monitor = require("../models/Monitor")
 const evaluateMonitorHealth = async (monitorId, windowSize = 5, failThreshold = 3) => {         // windowSize ==> kac sonuc bakilacak , failThreshold ==> failThreshold
 
 
-    const lastResults = await CheckResult({ monitor: monitorId }).sort({ checkedAt: -1 }).limit(windowSize)
+    const lastResults = await CheckResult.find({ monitor: monitorId }).sort({ checkedAt: -1 }).limit(windowSize)
 
-    if (lastResults === 0) {
+    if (lastResults.length === 0) {
 
         return { changed: false, status: null, reason: "no_results" };
     }
@@ -23,7 +23,7 @@ const evaluateMonitorHealth = async (monitorId, windowSize = 5, failThreshold = 
     }
 
     //  Yeni status’u hesapla
-    const newStatus = failCount >= failThreshold ? "unhealthy" : "healthy"
+    const newStatus = failCount >= failThreshold ? "unhealthy" : "healthy"      // failThreshold ==> parametreden gelen deger 
 
     const monitor = await Monitor.findById(monitorId)
 

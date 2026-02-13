@@ -1,9 +1,11 @@
 const CheckResult = require("../models/CheckResult")
 const Monitor = require("../models/Monitor")
+const { deleteOldCheckResults } = require("../services/retentionService")
 
 const { runCheck } = require("./checkService")
 
 let isRunning = false;
+let lastRetentionRunDate = null;
 
 const startScheduler = () => {
 
@@ -52,6 +54,14 @@ const startScheduler = () => {
 
                 }
 
+            }
+
+            const today = new Date().toDateString();
+
+            if (lastRetentionRunDate !== today) {       // ayni gun olursa bu kisim calismaz gunde sadece 1 defa !!!
+                const { deletedCount, cutoff } = await deleteOldCheckResults(30);
+                console.log(`Retention: deleted ${deletedCount} docs older than ${cutoff.toISOString()}`);
+                lastRetentionRunDate = today;
             }
         } catch (error) {
             console.log("Scheduler tick failed:", error.message);

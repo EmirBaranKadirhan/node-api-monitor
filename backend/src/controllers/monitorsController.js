@@ -242,6 +242,9 @@ const getMonitorStats = async (req, res) => {
         }
 
 
+        const lastResult = results[0] || null           // results[0] ==> bize en yeni degeri getirir  .sort({ checkedAt: -1 })
+
+
         // latency ortalamasını güvenli şekilde hesaplama
         const avgLatencyMs = latencyCount > 0 ? Math.round(latencySum / latencyCount) : null;
 
@@ -266,7 +269,15 @@ const getMonitorStats = async (req, res) => {
             avgLatencyMs,
             minLatencyMs,
             maxLatencyMs,
-            statusCodeCounts
+            statusCodeCounts,
+
+            lastResult: lastResult ? {
+                ok: lastResult.ok,
+                status: lastResult.status,
+                latencyMs: lastResult.latencyMs,
+                error: lastResult.error,
+                checkedAt: lastResult.checkedAt
+            } : null
 
         });
 

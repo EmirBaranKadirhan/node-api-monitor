@@ -29,5 +29,6 @@ const CheckResult = new Schema({
     timestamps: true
 })
 
+CheckResult.index({ monitor: 1, checkedAt: -1 });       // Bileşik İndeks: monitor(1:artan), checkedAt(-1:azalan/en yeni üstte). Tum db'yi tek tek taramasina gerek kalmaz bu sayede
 
 module.exports = mongoose.model("CheckResult", CheckResult);

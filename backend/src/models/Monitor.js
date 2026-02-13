@@ -30,6 +30,14 @@ const monitorSchema = new Schema({
         required: false,
         default: true
     },
+    status: {
+        type: String,
+        enum: ["healthy", "unhealthy"],
+        default: "healthy"
+    },
+    lastStatusChangeAt: {               // Ne zaman healthy → unhealthy oldu?
+        type: Date
+    },
     lastCheckedAt: {
         type: Date
     },
