@@ -1,7 +1,8 @@
 const Monitor = require("../models/Monitor")
 const CheckResult = require("../models/CheckResult")
 const { runCheck } = require("../services/checkService")
-
+const Alert = require("../models/Alert")
+const { evaluateMonitorHealth } = require("../services/alertService");
 
 const getMonitors = async (req, res) => {
 
@@ -56,6 +57,8 @@ const checkNow = async (req, res) => {
             return res.status(404).json({ message: "Monitor Bulunamadi" })
         }
 
+        const beforeStatus = monitor.status || "unknown";
+
         const result = await runCheck({
             url: monitor.url,
             timeoutMs: monitor.timeoutMs,
@@ -74,7 +77,33 @@ const checkNow = async (req, res) => {
             checkedAt: new Date(),
         })
 
-        return res.json({ monitor, result: saved });
+        const health = await evaluateMonitorHealth(monitor._id, 5, 3);
+
+        let alert = null
+        if (health.changed === true) {
+
+            const type = health.status === "unhealthy" ? "DOWN" : "RECOVERED"
+
+            alert = await Alert.create({
+                monitor: monitor._id,
+                type,
+                fromStatus: beforeStatus,
+                toStatus: health.status,
+                failCount: health.failCount,
+                windowSize: health.windowSize,
+                reason: health.reason || null,      // reason ==> degiskenlik gosterir her durumda tanimli gelmiyor alertService tarafinda !!!
+                createdAt: new Date(),
+
+            })
+        }
+
+        const updatedMonitor = await Monitor.findById(id);
+        return res.json({
+            monitor: updatedMonitor,
+            result: saved,
+            health,
+            alert,
+        });
 
 
     } catch (error) {
@@ -198,8 +227,8 @@ const getMonitorStats = async (req, res) => {
         let latencyCount = 0;
 
 
-        let minLatencyMs = 0;
-        let maxLatencyMs = 0;
+        let minLatencyMs = null;
+        let maxLatencyMs = null;
 
 
         const statusCodeCounts = {}
@@ -242,7 +271,7 @@ const getMonitorStats = async (req, res) => {
         }
 
 
-        const lastResult = results[0] || null           // results[0] ==> bize en yeni degeri getirir  .sort({ checkedAt: -1 })
+        const lastResult = results[0] || null         // results[0] ==> bize en yeni degeri getirir  .sort({ checkedAt: -1 })
 
 
         // latency ortalamasını güvenli şekilde hesaplama
@@ -290,6 +319,30 @@ const getMonitorStats = async (req, res) => {
 
 
 
+const getMonitorAlerts = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const limit = Number(req.query.limit) || 50;
+        const skip = Number(req.query.skip) || 0;
+
+        const alerts = await Alert.find({ monitor: id })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        return res.json({
+            monitorId: id,
+            skip,
+            limit,
+            count: alerts.length,
+            alerts,
+        });
+    } catch (error) {
+        return res.status(500).json({ message: "Alerts alınamadı", error: error.message });
+    }
+};
+
+
 
 module.exports = {
     getMonitors,
@@ -297,5 +350,6 @@ module.exports = {
     checkNow,
     getMonitorResults,
     getLastResult,
-    getMonitorStats
+    getMonitorStats,
+    getMonitorAlerts
 }
