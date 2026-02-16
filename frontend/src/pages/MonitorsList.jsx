@@ -47,13 +47,13 @@ export default function MonitorsList() {
                 <header className="ml-header">
                     <h1>Monitors</h1>
                     <button className="ml-refresh" onClick={loadMonitors} disabled={loading}>
-                        {loading ? "Yükleniyor..." : "Yenile"}
+                        {loading ? "Loading..." : "Refresh"}
                     </button>
                 </header>
 
                 {monitors.length === 0 ? (
                     <div className="ml-empty">
-                        {loading ? "Monitors yükleniyor..." : "Henüz monitor yok."}
+                        {loading ? "Monitors Loading..." : "No monitor yet.."}
                     </div>
                 ) : (
                     <div className="ml-list">
@@ -76,7 +76,7 @@ export default function MonitorsList() {
 
                                     <div className="ml-actions">
                                         <Link to={`/monitor/${m._id}`} className="ml-link">
-                                            Detay
+                                            Detail
                                         </Link>
 
                                         <button
@@ -85,7 +85,7 @@ export default function MonitorsList() {
                                             disabled={runningId === m._id}
                                             title="Manuel kontrol gerçekleştir"
                                         >
-                                            {runningId === m._id ? "Çalışıyor..." : "Check Now"}
+                                            {runningId === m._id ? "Running..." : "Check Now"}
                                         </button>
                                     </div>
                                 </div>
