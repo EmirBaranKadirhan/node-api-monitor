@@ -20,7 +20,7 @@ const alertSchema = new mongoose.Schema({
     fromStatus: {
         type: String,
         enum: ["healthy", "unhealthy", "unknown"],
-        default: "unknowm"
+        default: "unknown"
     },
     toStatus: {
         type: String,

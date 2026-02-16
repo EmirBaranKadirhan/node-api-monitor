@@ -163,7 +163,7 @@ const getLastResult = async (req, res) => {
 
         }
 
-        last = await CheckResult.findOne({ monitor: id }).sort({ checkedAt: -1 })   // en son ki 1 kaydi istedigimiz icin findOne kullandik
+        const last = await CheckResult.findOne({ monitor: id }).sort({ checkedAt: -1 })   // en son ki 1 kaydi istedigimiz icin findOne kullandik
 
 
         return res.json({
