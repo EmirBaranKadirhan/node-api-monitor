@@ -60,16 +60,15 @@ Frontend communicates with the backend through REST API endpoints.
 
 ## 📸 Screenshots
 
-> Add your screenshots here (place images under `docs/screenshots/`)
 
 ### Monitors Dashboard
-![Monitors Screenshot](pictures/uygulamaIciGorsel1.png)
+![Monitors Screenshot](pictures/uygulamaIciGorsel1.PNG)
 
 ### Check Now Button
-![Monitors Screenshot](pictures/uygulamaIciGorsel2.png)
+![Monitors Screenshot](pictures/uygulamaIciGorsel2.PNG)
 
 ### Monitor Detail
-![Monitors Screenshot](pictures/uygulamaIciGorsel3.png)
+![Monitors Screenshot](pictures/uygulamaIciGorsel3.PNG)
 
 ---
 
